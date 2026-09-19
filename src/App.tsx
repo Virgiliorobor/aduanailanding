@@ -342,7 +342,7 @@ function App() {
             </motion.p>
           </div>
           
-          {/* Pedimento image small/side */}
+          {/* Border trucks image small/side */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -351,8 +351,8 @@ function App() {
             className="justify-self-end"
           >
             <img
-              src="/assets/mx-pedimento-cool.png"
-              alt="Pedimento"
+              src="/assets/mx-border-trucks-cool.png"
+              alt="Border trucks"
               className="w-full max-w-sm h-auto pixel-perfect"
               style={{ imageRendering: 'pixelated' }}
             />
