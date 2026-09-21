@@ -2,31 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    background-color: #f5f2ec;
-    color: #3a3630;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    color: #17140f;
-  }
-}
-
-.font-serif {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+body {
+  font-family: 'Geist Sans', system-ui, -apple-system, sans-serif;
+  background-color: #000000;
+  color: #c9d1d9;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .font-sans {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Geist Sans', system-ui, -apple-system, sans-serif;
 }
 
 .font-mono {
-  font-family: 'DM Mono', 'Courier New', monospace;
+  font-family: 'Geist Mono', 'Courier New', monospace;
 }
 
 .pixel-perfect,
@@ -37,15 +26,18 @@ img {
 }
 
 .scanlines-overlay {
+  position: fixed;
+  inset: 0;
   background: repeating-linear-gradient(
     0deg,
-    rgba(23, 20, 15, 0.03) 0px,
-    rgba(23, 20, 15, 0.03) 1px,
+    rgba(201, 209, 217, 0.03) 0px,
+    rgba(201, 209, 217, 0.03) 1px,
     transparent 1px,
     transparent 2px
   );
   animation: scanline-move 8s linear infinite;
   pointer-events: none;
+  z-index: 100;
 }
 
 @keyframes scanline-move {
@@ -54,5 +46,75 @@ img {
   }
   100% {
     background-position: 0 20px;
+  }
+}
+
+.glitch-text {
+  position: relative;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -2px 0 #8b5cf6;
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+  left: -2px;
+  text-shadow: -2px 0 #fb923c;
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim 2.5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% {
+    clip: rect(30px, 9999px, 65px, 0);
+  }
+  20% {
+    clip: rect(10px, 9999px, 120px, 0);
+  }
+  40% {
+    clip: rect(90px, 9999px, 50px, 0);
+  }
+  60% {
+    clip: rect(20px, 9999px, 100px, 0);
+  }
+  80% {
+    clip: rect(70px, 9999px, 30px, 0);
+  }
+  100% {
+    clip: rect(40px, 9999px, 80px, 0);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0% {
+    clip: rect(65px, 9999px, 100px, 0);
+  }
+  20% {
+    clip: rect(90px, 9999px, 20px, 0);
+  }
+  40% {
+    clip: rect(10px, 9999px, 85px, 0);
+  }
+  60% {
+    clip: rect(50px, 9999px, 60px, 0);
+  }
+  80% {
+    clip: rect(30px, 9999px, 110px, 0);
+  }
+  100% {
+    clip: rect(70px, 9999px, 40px, 0);
   }
 }
