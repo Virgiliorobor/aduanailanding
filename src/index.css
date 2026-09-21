@@ -2,49 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Geist Sans', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #000000;
-  color: #f3ecd8;
-  overflow-x: hidden;
+@layer base {
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background-color: #f5f2ec;
+    color: #3a3630;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: #17140f;
+  }
 }
 
-* {
-  box-sizing: border-box;
+.font-serif {
+  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
-/* Font families */
 .font-sans {
-  font-family: 'Geist Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
 }
 
 .font-mono {
-  font-family: 'Geist Mono', 'Courier New', monospace;
+  font-family: 'DM Mono', 'Courier New', monospace;
 }
 
-/* Pixel-perfect nearest-neighbor rendering */
 .pixel-perfect,
 img {
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
 }
 
-/* Scanlines overlay */
 .scanlines-overlay {
   background: repeating-linear-gradient(
     0deg,
-    rgba(243, 236, 216, 0.03) 0px,
-    rgba(243, 236, 216, 0.03) 1px,
+    rgba(23, 20, 15, 0.03) 0px,
+    rgba(23, 20, 15, 0.03) 1px,
     transparent 1px,
     transparent 2px
   );
   animation: scanline-move 8s linear infinite;
+  pointer-events: none;
 }
 
 @keyframes scanline-move {
@@ -52,53 +53,6 @@ img {
     background-position: 0 0;
   }
   100% {
-    background-position: 0 100%;
+    background-position: 0 20px;
   }
-}
-
-/* Glitch effects (subtle) */
-@keyframes glitch-subtle {
-  0% {
-    transform: translate(0);
-  }
-  20% {
-    transform: translate(-1px, 1px);
-  }
-  40% {
-    transform: translate(-1px, -1px);
-  }
-  60% {
-    transform: translate(1px, 1px);
-  }
-  80% {
-    transform: translate(1px, -1px);
-  }
-  100% {
-    transform: translate(0);
-  }
-}
-
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Focus styles */
-button:focus,
-a:focus {
-  outline: 2px solid #4a5680;
-  outline-offset: 2px;
-}
-
-/* No rounded corners on buttons/images - flush rectangles */
-button,
-img,
-.card {
-  border-radius: 0;
-}
-
-/* Text selection */
-::selection {
-  background-color: #4a5680;
-  color: #f3ecd8;
 }
