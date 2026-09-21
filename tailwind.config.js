@@ -7,21 +7,39 @@ export default {
   theme: {
     extend: {
       colors: {
-        'aduanai-dark': '#0a0a0a',
-        'aduanai-charcoal': '#1a1a1a',
-        'aduanai-steel': '#2a2a2a',
-        'aduanai-silver': '#d4d4d4',
-        'aduanai-ice': '#f5f5f5',
-        'aduanai-accent': '#3b82f6',
-        'aduanai-accent-dark': '#1e40af',
+        ink: {
+          DEFAULT: '#17140f',
+          mid: '#3a3630',
+          muted: '#6e6a63',
+          faint: '#a8a49d',
+        },
+        paper: {
+          DEFAULT: '#f5f2ec',
+          warm: '#ece8e0',
+          card: '#ffffff',
+        },
+        gold: {
+          DEFAULT: '#b8943e',
+          light: '#d4b06a',
+          deep: '#7a5f24',
+          faint: '#f0e8d5',
+        },
+        risk: '#7a2828',
+        safe: '#2a5c3f',
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        'display': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        mono: ['DM Mono', 'Courier New', 'monospace'],
       },
-      fontSize: {
-        'hero': ['4.5rem', { lineHeight: '1', letterSpacing: '-0.02em' }],
-        'display': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+      maxWidth: {
+        content: '1140px',
+        reading: '720px',
+        wide: '900px',
+      },
+      borderRadius: {
+        'sm': '2px',
+        'md': '4px',
       },
     },
   },
