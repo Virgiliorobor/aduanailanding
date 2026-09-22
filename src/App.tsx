@@ -69,6 +69,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
 const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
   const ref = useRef<HTMLElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start']
@@ -76,7 +77,6 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
   
   const [layerOpacities, setLayerOpacities] = useState([1, 0, 0, 0])
   const [cameraTransform, setCameraTransform] = useState('none')
-  const [copyOpacity, setCopyOpacity] = useState(0)
   
   useEffect(() => {
     return scrollYProgress.on('change', () => {
@@ -92,26 +92,16 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
       
       const transform = getCameraTransform(beat.camera, progress)
       setCameraTransform(transform)
-      
-      // Fade in copy overlay when glitch intensifies (45-85% progress)
-      if (progress < 0.45) {
-        setCopyOpacity(0)
-      } else if (progress < 0.55) {
-        setCopyOpacity(smooth((progress - 0.45) / 0.1))
-      } else if (progress < 0.85) {
-        setCopyOpacity(1)
-      } else {
-        setCopyOpacity(1 - smooth((progress - 0.85) / 0.07))
-      }
     })
   }, [scrollYProgress, beat.camera])
   
   const layerOpacity = (p: number, aggressive = false): number[] => {
     const adj = aggressive ? Math.min(1, p * 1.1) : p
-    const o0 = clamp(1 - adj * 1.8)
-    const o1 = clamp(1 - Math.abs(adj - 0.35) * 2.5)
-    const o2 = clamp(1 - Math.abs(adj - 0.7) * 2.2)
-    const o3 = clamp((adj - 0.75) / 0.35) * 0.5
+    // Reversed: start with heavy glitch (o3), resolve to clarity (o0)
+    const o3 = clamp(1 - adj * 1.8) * 0.5
+    const o2 = clamp(1 - Math.abs(adj - 0.35) * 2.5)
+    const o1 = clamp(1 - Math.abs(adj - 0.7) * 2.2)
+    const o0 = clamp((adj - 0.75) / 0.35)
     return [o0, o1, o2, o3]
   }
   
@@ -166,33 +156,6 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
     }
   }
   
-  const renderCopyOverlay = () => {
-    if (!beat.copyText) return null
-    
-    return (
-      <div 
-        className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none"
-        style={{ opacity: copyOpacity }}
-      >
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            background: 'radial-gradient(ellipse 80% 60% at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)'
-          }}
-        />
-        <div className="relative z-10 max-w-4xl px-8 md:px-16">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-chrome font-mono text-center"
-             style={{
-               textShadow: '0 0 60px rgba(0,0,0,1), 0 4px 12px rgba(0,0,0,0.9), 0 0 3px #000, 0 0 6px #000',
-               WebkitTextStroke: '0.5px rgba(0,0,0,0.5)'
-             }}>
-            {beat.copyText}
-          </p>
-        </div>
-      </div>
-    )
-  }
-  
   if (beat.type === 'void') {
     return (
       <section ref={ref} className="relative" style={{ height: beat.height || '140vh' }}>
@@ -224,61 +187,95 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
     }, [scrollYProgress])
     
     return (
-      <section ref={ref} className="relative" style={{ height: beat.height || '220vh' }}>
-        <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
-          <div className="absolute inset-[-8%] will-change-transform origin-center" style={{ transform: cameraTransform }}>
-            {(['a', 'b', 'c'] as const).map((key) => {
-              const images = beat.plantImages![key]
-              const stackOpacity = plantOpacities[key]
-              return (
-                <div key={key} className="absolute inset-0" style={{ opacity: stackOpacity }}>
-                  {images.map((src, i) => (
-                    <img
-                      key={i}
-                      src={src}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover"
-                      style={{
-                        opacity: layerOpacities[i],
-                        zIndex: i + 1,
-                        imageRendering: 'pixelated'
-                      }}
-                    />
-                  ))}
-                </div>
-              )
-            })}
+      <>
+        <section ref={ref} className="relative" style={{ height: beat.height || '220vh' }}>
+          <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
+            <div className="absolute inset-[-8%] will-change-transform origin-center" style={{ transform: cameraTransform }}>
+              {(['a', 'b', 'c'] as const).map((key) => {
+                const images = beat.plantImages![key]
+                const stackOpacity = plantOpacities[key]
+                return (
+                  <div key={key} className="absolute inset-0" style={{ opacity: stackOpacity }}>
+                    {images.map((src, i) => (
+                      <img
+                        key={i}
+                        src={src}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{
+                          opacity: layerOpacities[i],
+                          zIndex: i + 1,
+                          imageRendering: 'pixelated'
+                        }}
+                      />
+                    ))}
+                  </div>
+                )
+              })}
+            </div>
           </div>
-          {renderCopyOverlay()}
-        </div>
-      </section>
+        </section>
+        {beat.copyText && (
+          <section className="relative bg-black py-16 md:py-24 px-8 md:px-12 lg:px-16">
+            <motion.div
+              ref={textRef}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.3, margin: "0px 0px -100px 0px" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="max-w-5xl mx-auto"
+            >
+              <p className="text-lg md:text-xl lg:text-2xl leading-relaxed text-chrome font-mono">
+                {beat.copyText}
+              </p>
+            </motion.div>
+          </section>
+        )}
+      </>
     )
   }
   
   return (
-    <section ref={ref} className="relative" style={{ height: beat.height || '160vh' }}>
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
-        <div className="absolute inset-[-8%] will-change-transform origin-center" style={{ transform: cameraTransform }}>
-          <div className="absolute inset-0">
-            {beat.images?.map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover will-change-opacity"
-                style={{
-                  opacity: layerOpacities[i],
-                  zIndex: i + 1,
-                  imageRendering: 'pixelated'
-                }}
-              />
-            ))}
+    <>
+      <section ref={ref} className="relative" style={{ height: beat.height || '160vh' }}>
+        <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
+          <div className="absolute inset-[-8%] will-change-transform origin-center" style={{ transform: cameraTransform }}>
+            <div className="absolute inset-0">
+              {beat.images?.map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover will-change-opacity"
+                  style={{
+                    opacity: layerOpacities[i],
+                    zIndex: i + 1,
+                    imageRendering: 'pixelated'
+                  }}
+                />
+              ))}
+            </div>
           </div>
+          {beat.content && beat.content}
         </div>
-        {renderCopyOverlay()}
-        {beat.content && beat.content}
-      </div>
-    </section>
+      </section>
+      {beat.copyText && (
+        <section className="relative bg-black py-16 md:py-24 px-8 md:px-12 lg:px-16">
+          <motion.div
+            ref={textRef}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3, margin: "0px 0px -100px 0px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-5xl mx-auto"
+          >
+            <p className="text-lg md:text-xl lg:text-2xl leading-relaxed text-chrome font-mono">
+              {beat.copyText}
+            </p>
+          </motion.div>
+        </section>
+      )}
+    </>
   )
 }
 
