@@ -18,19 +18,21 @@ const CharacterRain = ({ intensity = 0.15 }: { intensity?: number }) => {
     resize()
     
     const glyphs = '01アイウエオカキクケコΣΔΩ░▒▓█┼╬╗╝'
-    const cols = Math.floor(canvas.width / 18)
+    const cols = Math.floor(canvas.width / 24)
     const drops = Array.from({ length: cols }, () => Math.random() * canvas.height)
     
     const draw = () => {
-      ctx.fillStyle = 'rgba(0,0,0,0.08)'
+      ctx.fillStyle = 'rgba(0,0,0,0.05)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
-      ctx.fillStyle = 'rgba(31,111,120,0.55)'
-      ctx.font = '12px monospace'
+      ctx.fillStyle = 'rgba(31,111,120,0.25)'
+      ctx.font = '11px monospace'
       
       drops.forEach((y, i) => {
-        const ch = glyphs[Math.floor(Math.random() * glyphs.length)]
-        ctx.fillText(ch, i * 18, y)
-        drops[i] = y > canvas.height + Math.random() * 200 ? 0 : y + 10 + Math.random() * 8
+        if (Math.random() > 0.97) {
+          const ch = glyphs[Math.floor(Math.random() * glyphs.length)]
+          ctx.fillText(ch, i * 24, y)
+        }
+        drops[i] = y > canvas.height + Math.random() * 300 ? 0 : y + 12 + Math.random() * 6
       })
       
       requestAnimationFrame(draw)
@@ -105,11 +107,11 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
   }, [scrollYProgress, beat.camera])
   
   const layerOpacity = (p: number, aggressive = false): number[] => {
-    const adj = aggressive ? Math.min(1, p * 1.15) : p
-    const o0 = clamp(1 - adj * 2.2)
-    const o1 = clamp(1 - Math.abs(adj - 0.28) * 3.2)
-    const o2 = clamp(1 - Math.abs(adj - 0.58) * 3.0)
-    const o3 = clamp((adj - 0.45) / 0.45)
+    const adj = aggressive ? Math.min(1, p * 1.1) : p
+    const o0 = clamp(1 - adj * 1.8)
+    const o1 = clamp(1 - Math.abs(adj - 0.35) * 2.5)
+    const o2 = clamp(1 - Math.abs(adj - 0.7) * 2.2)
+    const o3 = clamp((adj - 0.75) / 0.35) * 0.5
     return [o0, o1, o2, o3]
   }
   
@@ -117,46 +119,46 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
     const s = smooth(p)
     switch (type) {
       case 'orbit': {
-        const scale = lerp(1.18, 1.0, s)
-        const rot = lerp(-2.5, 3.5, s)
-        const tx = lerp(2, -2, s)
+        const scale = lerp(1.08, 1.0, s)
+        const rot = lerp(-1, 1.5, s)
+        const tx = lerp(1, -1, s)
         return `translate(${tx}%, 0) scale(${scale}) rotate(${rot}deg)`
       }
       case 'dive': {
-        const scale = lerp(1.0, 1.85, s)
-        const rot = lerp(0, -8, s)
-        const ty = lerp(0, 6, s)
+        const scale = lerp(1.0, 1.35, s)
+        const rot = lerp(0, -3, s)
+        const ty = lerp(0, 3, s)
         return `translate(0, ${ty}%) scale(${scale}) rotate(${rot}deg)`
       }
       case 'hold': {
         const hold = p < 0.2 ? 0 : smooth((p - 0.2) / 0.8)
-        const scale = lerp(1.0, 1.12, hold)
+        const scale = lerp(1.0, 1.08, hold)
         return `scale(${scale})`
       }
       case 'portal': {
-        const scale = lerp(1.0, 2.4, s)
-        const ty = lerp(0, -4, s)
+        const scale = lerp(1.0, 1.6, s)
+        const ty = lerp(0, -2, s)
         return `translate(0, ${ty}%) scale(${scale})`
       }
       case 'pullup': {
-        const scale = lerp(1.35, 1.0, s)
-        const ty = lerp(8, -2, s)
+        const scale = lerp(1.2, 1.0, s)
+        const ty = lerp(4, -1, s)
         return `translate(0, ${ty}%) scale(${scale})`
       }
       case 'plant': {
-        const scale = lerp(1.05, 1.2, s)
-        const ty = lerp(2, -3, s)
+        const scale = lerp(1.03, 1.12, s)
+        const ty = lerp(1, -2, s)
         return `translate(0, ${ty}%) scale(${scale})`
       }
       case 'pan': {
-        const tx = lerp(12, -12, s)
-        const scale = 1.15
+        const tx = lerp(6, -6, s)
+        const scale = 1.08
         return `translate(${tx}%, 0) scale(${scale})`
       }
       case 'morph': {
-        const scale = lerp(1.0, 1.55, s)
-        const rot = lerp(0, 4, s)
-        const tx = Math.sin(s * Math.PI * 2) * 1.5
+        const scale = lerp(1.0, 1.3, s)
+        const rot = lerp(0, 2, s)
+        const tx = Math.sin(s * Math.PI * 2) * 0.8
         return `translate(${tx}%, 0) scale(${scale}) rotate(${rot}deg)`
       }
       default:
@@ -169,14 +171,20 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
     
     return (
       <div 
-        className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
+        className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none"
         style={{ opacity: copyOpacity }}
       >
-        <div className="max-w-4xl px-8 md:px-16">
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            background: 'radial-gradient(ellipse 80% 60% at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)'
+          }}
+        />
+        <div className="relative z-10 max-w-4xl px-8 md:px-16">
           <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-chrome font-mono text-center"
              style={{
-               textShadow: '0 0 40px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.8), 0 0 2px #000, 0 0 4px #000',
-               WebkitTextStroke: '1px rgba(0,0,0,0.3)'
+               textShadow: '0 0 60px rgba(0,0,0,1), 0 4px 12px rgba(0,0,0,0.9), 0 0 3px #000, 0 0 6px #000',
+               WebkitTextStroke: '0.5px rgba(0,0,0,0.5)'
              }}>
             {beat.copyText}
           </p>
@@ -261,8 +269,7 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
                 style={{
                   opacity: layerOpacities[i],
                   zIndex: i + 1,
-                  imageRendering: 'pixelated',
-                  mixBlendMode: i === 2 ? 'screen' : 'normal'
+                  imageRendering: 'pixelated'
                 }}
               />
             ))}
@@ -431,7 +438,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black text-chrome overflow-x-hidden relative">
-      <CharacterRain intensity={0.18} />
+      <CharacterRain intensity={0.06} />
       <Scanlines />
 
       <div className="fixed top-0 left-0 right-0 z-[100] flex justify-between px-[18px] py-[14px] text-[11px] tracking-[0.12em] uppercase text-chrome/55 pointer-events-none mix-blend-difference font-mono">
