@@ -54,6 +54,7 @@ interface BeatLayer {
   label: string
   camera: 'orbit' | 'dive' | 'hold' | 'portal' | 'pullup' | 'plant' | 'pan' | 'morph' | 'void'
   whisper?: string
+  copyText?: string
   images?: string[]
   plantImages?: { a: string[], b: string[], c: string[] }
   height?: string
@@ -73,7 +74,7 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
   
   const [layerOpacities, setLayerOpacities] = useState([1, 0, 0, 0])
   const [cameraTransform, setCameraTransform] = useState('none')
-  const [whisperVisible, setWhisperVisible] = useState(false)
+  const [copyOpacity, setCopyOpacity] = useState(0)
   
   useEffect(() => {
     return scrollYProgress.on('change', () => {
@@ -90,7 +91,16 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
       const transform = getCameraTransform(beat.camera, progress)
       setCameraTransform(transform)
       
-      setWhisperVisible(progress > 0.35 && progress < 0.92)
+      // Fade in copy overlay when glitch intensifies (45-85% progress)
+      if (progress < 0.45) {
+        setCopyOpacity(0)
+      } else if (progress < 0.55) {
+        setCopyOpacity(smooth((progress - 0.45) / 0.1))
+      } else if (progress < 0.85) {
+        setCopyOpacity(1)
+      } else {
+        setCopyOpacity(1 - smooth((progress - 0.85) / 0.07))
+      }
     })
   }, [scrollYProgress, beat.camera])
   
@@ -154,6 +164,27 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
     }
   }
   
+  const renderCopyOverlay = () => {
+    if (!beat.copyText) return null
+    
+    return (
+      <div 
+        className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
+        style={{ opacity: copyOpacity }}
+      >
+        <div className="max-w-4xl px-8 md:px-16">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-chrome font-mono text-center"
+             style={{
+               textShadow: '0 0 40px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.8), 0 0 2px #000, 0 0 4px #000',
+               WebkitTextStroke: '1px rgba(0,0,0,0.3)'
+             }}>
+            {beat.copyText}
+          </p>
+        </div>
+      </div>
+    )
+  }
+  
   if (beat.type === 'void') {
     return (
       <section ref={ref} className="relative" style={{ height: beat.height || '140vh' }}>
@@ -210,11 +241,7 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
               )
             })}
           </div>
-          {beat.whisper && (
-            <p className={`absolute left-[18px] bottom-[28px] max-w-[min(42ch,70vw)] text-xs leading-relaxed tracking-wide text-chrome/70 transition-opacity duration-400 z-20 pointer-events-none ${whisperVisible ? 'opacity-100' : 'opacity-0'}`}>
-              {beat.whisper}
-            </p>
-          )}
+          {renderCopyOverlay()}
         </div>
       </section>
     )
@@ -241,11 +268,7 @@ const StoryBeat = ({ beat }: { beat: BeatLayer, index: number }) => {
             ))}
           </div>
         </div>
-        {beat.whisper && (
-          <p className={`absolute left-[18px] bottom-[28px] max-w-[min(42ch,70vw)] text-xs leading-relaxed tracking-wide text-chrome/70 transition-opacity duration-400 z-20 pointer-events-none ${whisperVisible ? 'opacity-100' : 'opacity-0'}`}>
-            {beat.whisper}
-          </p>
-        )}
+        {renderCopyOverlay()}
         {beat.content && beat.content}
       </div>
     </section>
@@ -261,7 +284,7 @@ function App() {
       id: 'SB-01',
       label: 'SB-01 // AERIAL',
       camera: 'orbit',
-      whisper: 'Tecnología aplicada al comercio exterior mexicano.',
+      copyText: 'Tecnología aplicada al comercio exterior mexicano.',
       height: '160vh',
       images: [
         '/assets/storyboard/glitch-seq/SB-01-glitch-00-FULL.png',
@@ -288,7 +311,7 @@ function App() {
       id: 'SB-03',
       label: 'SB-03 // DOOR',
       camera: 'hold',
-      whisper: 'Los sistemas generan reportes.',
+      copyText: 'Los sistemas de control de inventario de las operaciones IMMEX generan reportes.',
       height: '160vh',
       images: [
         '/assets/storyboard/glitch-seq/SB-03-glitch-00-FULL.png',
@@ -302,7 +325,7 @@ function App() {
       id: 'SB-05',
       label: 'SB-05 // PORTAL',
       camera: 'portal',
-      whisper: 'Lo que no generan es visibilidad real.',
+      copyText: 'Lo que no generan es visibilidad real: dónde está la exposición, qué balance está por vencer, qué diferencia existe entre lo que el sistema dice y lo que el SAT va a encontrar.',
       height: '160vh',
       images: [
         '/assets/storyboard/glitch-seq/SB-05-glitch-00-FULL.png',
@@ -316,7 +339,7 @@ function App() {
       id: 'SB-07',
       label: 'SB-07 // DOCK',
       camera: 'pullup',
-      whisper: 'Capa de datos independiente… sobre las tablas del cliente.',
+      copyText: 'AduanIA construye la capa de datos independiente que muestra eso, directamente sobre las tablas del cliente.',
       height: '160vh',
       images: [
         '/assets/storyboard/glitch-seq/SB-07-glitch-00-FULL.png',
@@ -330,7 +353,7 @@ function App() {
       id: 'SB-08',
       label: 'SB-08 // PLANT',
       camera: 'plant',
-      whisper: 'Entender cómo funciona la planta antes de escribir una sola línea de código.',
+      copyText: 'Construimos infraestructura específica para cada operación, basada en entender cómo funciona la planta antes de escribir una sola línea de código.',
       height: '220vh',
       plantImages: {
         a: [
@@ -358,7 +381,7 @@ function App() {
       id: 'SB-09',
       label: 'SB-09 // TRUCKS',
       camera: 'pan',
-      whisper: 'Certificación IVA… activo financiero material.',
+      copyText: 'Operaciones IMMEX manufactureras en México, donde la certificación IVA es un activo financiero material.',
       height: '160vh',
       images: [
         '/assets/storyboard/glitch-seq/SB-09-glitch-00-FULL.png',
@@ -372,7 +395,7 @@ function App() {
       id: 'SB-10',
       label: 'SB-10 // DATA',
       camera: 'morph',
-      whisper: 'Correcciones modeladas antes de ejecutarse. El juicio se queda en la planta.',
+      copyText: 'Herramientas propias para entregar consultoría IMMEX con visibilidad en tiempo real. Correcciones modeladas antes de ejecutarse.',
       height: '160vh',
       images: [
         '/assets/storyboard/glitch-seq/SB-10-glitch-00-FULL.png',
