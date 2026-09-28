@@ -7,24 +7,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        chrome: {
-          DEFAULT: '#c9d1d9',
-          bright: '#f0f6fc',
-          muted: '#8b949e',
-          dim: '#6e7681',
+        canvas: {
+          DEFAULT: '#f5f5f0',
+          light: '#fafaf8',
+          dark: '#e8e8e0',
         },
-        violet: {
-          DEFAULT: '#8b5cf6',
-          bright: '#a78bfa',
+        text: {
+          primary: '#1a1a1a',
+          secondary: '#4a4a4a',
+          tertiary: '#6a6a6a',
         },
-        peach: {
-          DEFAULT: '#fb923c',
-          bright: '#fdba74',
+        accent: {
+          DEFAULT: '#2a5a8f',
+          hover: '#1e4470',
         },
       },
       fontFamily: {
         sans: ['Geist Sans', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['Geist Mono', 'Courier New', 'monospace'],
+      },
+      fontSize: {
+        'display': ['3.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'display-lg': ['4.5rem', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
       },
     },
   },
